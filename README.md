@@ -1,6 +1,15 @@
 # C kernel module
-A simple kernel module that I coded as part of my job application routine.
+Это комплекс из двух программ. 
+Первая - это модуль ядра Linux, он печатает "Hello from linux kernel!" в файл в директории /proc по таймеру.
+Вторая - user-space-программа, позволяющая задавать и менять параметры модуля: временной интервал таймера, имя /proc файла.
 
-It doesn't do anything special and is single file.
+## Сборка
+Собираются отдельно, в директориях kernel-module и conf-application есть make-файлы для каждой из них.
 
-*Note: this module was written and tested on Debian 11 with kernel version 5.10.28* 
+Для сборки вам понадобятся:
+- make
+- gcc
+- linux-headers для вашей версии ядра
+
+Makefile для модуля также включает опции **load**, которая загружает модуль (.ko) в ядро, **unload**, которая отключает модуль и выгружает его из ядра, а также **show-jrnl**, которая показывает записи ядра в журнала за последний час.
+Модуль и программа разрабатывались и тестировались на Debian 11 с версией ядра 5.10.28.
