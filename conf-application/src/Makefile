@@ -1,4 +1,4 @@
-SRC_FILES = "confapp.c"
+SRC_FILES = *.c
 TARGET = "confapp"
 
 default:
