@@ -33,6 +33,7 @@ static int line_count = 0;
 // timer that calls timer_callback function 
 static struct timer_list k_timer;
 
+// procfs output file name
 static char procfs_filename[PROCFS_FN_SIZE] = "hellok";
 
 // time period between /proc/hellok file writes
@@ -129,7 +130,7 @@ static ssize_t procfs_filename_store(struct kobject *kobj,
         return count;  
     } 
 
-    pr_info("/proc/%s created\n", procfs_filename);
+    pr_info("Now using /proc/%s as an output file.\n", procfs_filename);
 
     swap(out_proc_file, swap_proc_file);
 
