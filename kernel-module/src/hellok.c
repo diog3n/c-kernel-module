@@ -11,7 +11,7 @@
 #include <linux/version.h> 
 #include <linux/timer.h>
  
-#define PROCFS_STRING "Hello from the linux kernel!\n"
+#define PROCFS_STRING "Hello from kernel module!\n"
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Ilya Anufriev");
