@@ -6,6 +6,7 @@
 #include "defs.h"
 #include "readers.h"
 #include "printers.h"
+#include "file_checker.h"
 
 // Checks the string if it's valid name for /proc file. Basically, it 
 // checks if the string is alphanumeric and not just numbers, because 
@@ -87,11 +88,17 @@ int main(int argc, char** argv)
 		}
 	}
 
+	// Final checks
+
+	// If string is numeric, then it is not a valid file name
 	if (!(check_str_valid(procfs_filename))) {
 		print_invalid_filename();
 		return EXIT_FAILURE;
 	}
 
+
+	// Finally, if the timer is negative or equal to zero, we do not
+	// allow it.
 	if (timer_seconds <= 0) {
 		print_invalid_timer_seconds();
 		return EXIT_FAILURE;
@@ -108,22 +115,39 @@ int main(int argc, char** argv)
 
 	// open file streams in write mode. If user is not
     // root, this will fail and produce NULL pointers
-	FILE *proc_file_name_fstream = fopen(proc_file_name_path_str, "w");
 	FILE *timer_seconds_fstream  = fopen(timer_seconds_path_str, "w");
 
-	// hence the NULL check
-	if (!proc_file_name_fstream || !timer_seconds_fstream) {
+	if (!timer_seconds_fstream) {
+		printf("Could not open files. Are you root?\n");
+		return EXIT_FAILURE;
+	}
+
+	fprintf(timer_seconds_fstream, "%d", timer_seconds);
+	fclose(timer_seconds_fstream);
+
+	// If a file or directory with such name already exists, then
+	// it should not be created. Instead, only timer_seconds will
+	// be changed.
+	// Actually (c), the file will not be created anyway, since 
+	// kernel does not register /proc entries with equal names,
+	// but to avoid some really nasty error messages in system logs,
+	// I decided to implement this protection mechanism.  
+	if (check_proc_file_exists(procfs_filename) == FILE_EXISTS) {
+		print_file_already_exists();
+		return EXIT_SUCCESS;
+	}
+			
+	FILE *proc_file_name_fstream = fopen(proc_file_name_path_str, "w");
+
+	if (!timer_seconds_fstream) {
 		printf("Could not open files. Are you root?\n");
 		return EXIT_FAILURE;
 	}
 
 	fprintf(proc_file_name_fstream, "%s", procfs_filename);
-	fprintf(timer_seconds_fstream, "%d", timer_seconds);
 
 	// close streams in the end
 	fclose(proc_file_name_fstream);
-	fclose(timer_seconds_fstream);
-
 
 	printf("Done!\n");
 	return EXIT_SUCCESS;

@@ -36,3 +36,9 @@ void print_name_too_long()
 	printf("Filename too long, choose a filename that is "
 		   "not longer than 32 characters\n");
 }
+
+void print_file_already_exists() {
+	printf("File or directory with such name already exists. "
+           "Only timer_seconds will be changed.\n"
+		);
+}
