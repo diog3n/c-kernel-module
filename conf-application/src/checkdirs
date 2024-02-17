@@ -1,0 +1,12 @@
+#!/bin/bash
+
+k_module_path=/sys/kernel/infotecs_module
+
+echo "Contents of the $k_module_path/proc_file_name file:"
+cat $k_module_path/proc_file_name
+
+echo "Contents of the $k_module_path/timer_seconds file:"
+cat $k_module_path/timer_seconds
+
+echo "Contents of the /proc/$(sudo cat $k_module_path/proc_file_name) file:"
+cat /proc/$(cat $k_module_path/proc_file_name)

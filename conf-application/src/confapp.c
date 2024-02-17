@@ -13,27 +13,36 @@
 // Parameters:
 //     char *str - pointer to a null-terminated string to be checked.
 // Return value:
-//     1 on valid name, 0 on invalid one.
+//     SUCCESS on valid name, FAILURE on invalid one.
 int check_str_valid(char *str);
 
 int main(int argc, char** argv) 
 {
 	int timer_seconds;
 
-	char procfs_filename[PROCFS_FN_SIZE] = "hellok";
+	char procfs_filename[PROCFS_FN_SIZE + 1] = "hellok";
 
 	if (argc < 2) {
+		read_status_t read_filename_result = 
+							read_procfs_filename_inter(procfs_filename);
 
 		// read the filename interactively, check the result and validate
 		// the string
-		if (read_procfs_filename_inter(procfs_filename) == ERROR
-	     || !check_str_valid(procfs_filename)) {
+		if (read_filename_result == READ_NONE) {
 			print_invalid_filename();
 			return EXIT_FAILURE;
 		}
 
+		if (read_filename_result == READ_OVERFLOW) {
+			print_name_too_long();
+			return EXIT_FAILURE;
+		}
+
+		read_status_t read_timer_seconds_result = 
+					           read_timer_seconds_inter(&timer_seconds);
+
 		// read the timer parameter interactively and check the result 
-		if (read_timer_seconds_inter(&timer_seconds) == ERROR) {
+		if (read_timer_seconds_result == READ_NONE) {
 			print_invalid_timer_seconds();
 			return EXIT_FAILURE;
 		}
@@ -54,28 +63,38 @@ int main(int argc, char** argv)
 			return 0;
 		}
 
-		// if it's something else, print error
+		// if it's something else, or too many arguments print error
 		if ((argc == 2 && !help_opt) || argc > 3) {
 			print_invalid_args();
 			return EXIT_FAILURE;
 		}
 
-		if (!check_str_valid(argv[argc - 2])) {
-			print_invalid_filename();
+		// if name is too long, exit
+		if (strlen(argv[argc - 2]) > PROCFS_FN_SIZE) {
+			print_name_too_long();
 			return EXIT_FAILURE;
 		}
 
 		// procfs_filename is always penultimate.
-		// if the name is too long, it will get truncated.
 		strncpy(procfs_filename, argv[argc - 2], PROCFS_FN_SIZE - 1);
 
 		// then read an int from argv 
 		int read = sscanf(argv[argc - 1], "%d", &timer_seconds);
 
-		if (read == 0 || read == EOF || timer_seconds <= 0) {
+		if (read == 0 || read == EOF) {
 			print_invalid_timer_seconds();
 			return EXIT_FAILURE;
 		}
+	}
+
+	if (!(check_str_valid(procfs_filename))) {
+		print_invalid_filename();
+		return EXIT_FAILURE;
+	}
+
+	if (timer_seconds <= 0) {
+		print_invalid_timer_seconds();
+		return EXIT_FAILURE;
 	}
 
 	// construct a paths from defined strings
@@ -105,6 +124,8 @@ int main(int argc, char** argv)
 	fclose(proc_file_name_fstream);
 	fclose(timer_seconds_fstream);
 
+
+	printf("Done!\n");
 	return EXIT_SUCCESS;
 }
 
@@ -115,10 +136,10 @@ int check_str_valid(char *str)
 		
 		// if a letter is encountered - it's valid
 		if (isalpha(str[i])) {
-			return 1;
+			return SUCCESS;
 		}
 	}
 
 	// otherwise return 0
-	return 0;
+	return FAILURE;
 }

@@ -30,3 +30,9 @@ void print_invalid_args()
 {
 	printf("Invalid arguments. Type --help to see usage.\n"); 
 }
+
+void print_name_too_long()
+{
+	printf("Filename too long, choose a filename that is "
+		   "not longer than 32 characters\n");
+}

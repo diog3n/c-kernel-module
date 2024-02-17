@@ -6,6 +6,7 @@
 #define TIMER_SECONDS_VAR  "timer_seconds"
 #define PROCFS_FN_SIZE     32
 
-#define ERROR              1
+#define FAILURE            0
+#define SUCCESS            1
 
-#define LAST_ELEMENT(array_name, size) array_name[size - 1]
+#define LAST_ELEMENT(array, size) array[size - 1]
