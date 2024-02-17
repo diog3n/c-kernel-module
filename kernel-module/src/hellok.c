@@ -172,6 +172,12 @@ static ssize_t timer_seconds_store(struct kobject *kobj,
                                    size_t count) 
 {
     sscanf(buf, "%du", &timer_seconds);
+
+    if (timer_seconds <= 0) {
+        pr_info("timer_seconds <= 0, not changed.\n");
+        return count;
+    }
+
     pr_info("timer_period changed by user. ");
     pr_info("Now using %d seconds for timer_period.\n", timer_seconds);
 
